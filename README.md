@@ -57,7 +57,7 @@
 
 ## 致谢
 
-本项目受到 [FreshRSS-TranslateTitlesCN](https://github.com/jacob2826/FreshRSS-TranslateTitlesCN) 的启发，感谢 [@jacob2826](https://github.com/jacob2826) 的开创性工作。在此基础上，我们扩展了更多功能，包括 AI 摘要生成、多服务支持以及更灵活的配置选项。
+本项目受到 [FreshRSS-TranslateTitlesCN](https://github.com/jacob2826/FreshRSS-TranslateTitlesCN) 的启发，感谢 [@jacob2826](https://github.com/jacob2826)
 
 ---
 *如有问题或建议，欢迎提交 Issue 反馈。*
