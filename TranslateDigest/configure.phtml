@@ -1,0 +1,368 @@
+<style>
+/* 表单样式 */
+.form-group {
+    margin-bottom: 15px;
+    display: block;
+}
+
+.group-name {
+    display: inline-block;
+    width: 180px;
+    font-weight: bold;
+    vertical-align: top;
+    padding-top: 5px;
+}
+
+.group-controls {
+    display: inline-block;
+    width: calc(100% - 200px);
+    vertical-align: top;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid;
+    border-radius: 3px;
+}
+
+.form-group input[type="radio"],
+.form-group input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.form-group .form-group {
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-group .form-group label {
+    display: inline;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* 订阅源列表 */
+.feed-list {
+    display: block;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.feed-list th,
+.feed-list td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid;
+}
+
+.feed-list tr:last-child td {
+    border-bottom: none;
+}
+
+.feed-name {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.feed-controls-cell {
+    width: 50%;
+    text-align: center;
+}
+
+/* 按钮组 */
+.form-actions {
+    border-top: 1px solid;
+    padding-top: 15px;
+}
+
+.btn {
+    padding: 8px 15px;
+    margin-right: 10px;
+    border: 1px solid;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.btn-important {
+    font-weight: bold;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+/* API Key 输入组 */
+.api-key-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.api-key-group input {
+    flex: 1;
+}
+
+/* 验证状态 */
+.validation-status {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.stat-label {
+    font-weight: bold;
+}
+
+.stat-value {
+    font-weight: normal;
+}
+
+/* 说明文本 */
+.help-text {
+    font-size: 12px;
+    margin-top: 3px;
+    display: block;
+}
+</style>
+
+<div>
+<form action="<?php echo _url('extension', 'configure', 'e', urlencode($this->getName())); ?>" method="post">
+    <input type="hidden" name="_csrf" value="<?php echo FreshRSS_Auth::csrfToken(); ?>" />
+
+    <?php 
+    // 从 FreshRSS_Context 读取配置
+    $conf = FreshRSS_Context::$user_conf;
+    $config = [
+        'TranslateDefaultService' => $conf->TranslateDefaultService ?? 'google',
+        'DeepSeekApiKey' => $conf->DeepSeekApiKey ?? '',
+        'DeepSeekModel' => $conf->DeepSeekModel ?? 'deepseek-chat',
+        'QwenApiKey' => $conf->QwenApiKey ?? '',
+        'QwenModel' => $conf->QwenModel ?? 'qwen-plus',
+        'TranslateTargetLang' => $conf->TranslateTargetLang ?? 'zh',
+        'TranslateSkipIfSame' => ($conf->TranslateSkipIfSame ?? '0') === '1',
+        'TokenMaxChars' => $conf->TokenMaxChars ?? '4000',
+        'TranslateTitles' => json_decode($conf->TranslateTitles ?? '{}', true) ?: [],
+        'SummarizeContents' => json_decode($conf->SummarizeContents ?? '{}', true) ?: [],
+    ];
+    
+    // 获取验证错误信息
+    $validationErrors = isset($this->validationErrors) ? $this->validationErrors : [];
+    
+    $feeds = FreshRSS_Factory::createFeedDao()->listFeeds();
+    $languages = ['zh' => '中文', 'en' => '英文', 'ja' => '日文', 'fr' => '法语', 'de' => '德语'];
+    ?>
+    
+    <!-- 验证错误提示 -->
+    <?php if (!empty($validationErrors)): ?>
+    <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; border-radius: 3px;">
+        <?php foreach ($validationErrors as $error): ?>
+            <p style="margin: 0 0 5px 0;"><?php echo htmlspecialchars($error); ?></p>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <!-- 翻译服务选择 -->
+    <div class="form-group">
+        <label class="group-name">翻译服务:</label>
+        <div class="group-controls">
+            <div class="form-group">
+                <input type="radio" id="service-google" name="TranslateDefaultService" value="google" 
+                    <?php echo $config['TranslateDefaultService'] === 'google' ? 'checked' : ''; ?> required>
+                <label for="service-google">Google 翻译 <span style="font-size: 12px;">（免费）</span></label>
+            </div>
+            <div class="form-group">
+                <input type="radio" id="service-deepseek" name="TranslateDefaultService" value="deepseek" 
+                    <?php echo $config['TranslateDefaultService'] === 'deepseek' ? 'checked' : ''; ?>>
+                <label for="service-deepseek">DeepSeek 
+                    <?php if (!empty($config['DeepSeekApiKey'])): ?>
+                        <span style="font-size: 12px;">✓ 已配置</span>
+                    <?php else: ?>
+                        <span style="font-size: 12px;">⚠ 未配置</span>
+                    <?php endif; ?>
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="radio" id="service-qwen" name="TranslateDefaultService" value="qwen" 
+                    <?php echo $config['TranslateDefaultService'] === 'qwen' ? 'checked' : ''; ?>>
+                <label for="service-qwen">通义千问 
+                    <?php if (!empty($config['QwenApiKey'])): ?>
+                        <span style="font-size: 12px;">✓ 已配置</span>
+                    <?php else: ?>
+                        <span style="font-size: 12px;">⚠ 未配置</span>
+                    <?php endif; ?>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 目标语言选择 -->
+    <div class="form-group">
+        <label class="group-name" for="target-lang">目标语言:</label>
+        <div class="group-controls">
+            <select id="target-lang" name="TranslateTargetLang">
+                <?php foreach ($languages as $code => $label): ?>
+                <option value="<?php echo $code; ?>" <?php echo $config['TranslateTargetLang'] === $code ? 'selected' : ''; ?>>
+                    <?php echo $label; ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+
+    <!-- 同语言跳过 -->
+    <div class="form-group">
+        <label class="group-name"></label>
+        <div class="group-controls">
+            <input type="hidden" name="TranslateSkipIfSame" value="0">
+            <input type="checkbox" id="skip-same" name="TranslateSkipIfSame" value="1" 
+                <?php echo $config['TranslateSkipIfSame'] ? 'checked' : ''; ?>>
+            <label for="skip-same">检测到同语言时跳过翻译</label>
+            <span class="help-text">开启后会自动检测，若已是目标语言则不翻译</span>
+        </div>
+    </div>
+
+    <!-- 最大字符数 -->
+    <div class="form-group">
+        <label class="group-name" for="token-max">最大字符数:</label>
+        <div class="group-controls">
+            <input id="token-max" type="number" name="TokenMaxChars" min="500" max="8000" 
+                value="<?php echo $config['TokenMaxChars']; ?>">
+            <span class="help-text">范围 500-8000，用于限制 AI 调用的文本长度，建议 3000-5000</span>
+        </div>
+    </div>
+
+    <!-- DeepSeek 配置 -->
+    <div class="form-group">
+        <label class="group-name" for="deepseek-key">DeepSeek API Key:</label>
+        <div class="group-controls">
+            <div class="api-key-group">
+                <input id="deepseek-key" type="password" name="DeepSeekApiKey" 
+                    value="<?php echo htmlspecialchars($config['DeepSeekApiKey'] ?? '', ENT_QUOTES); ?>" 
+                    placeholder="sk-...">
+                <button type="button" class="btn btn-small" onclick="document.getElementById('deepseek-key').value=''; document.getElementById('deepseek-key').type='text'; setTimeout(() => document.getElementById('deepseek-key').type='password', 100);">清除</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="group-name" for="deepseek-model">DeepSeek 模型:</label>
+        <div class="group-controls">
+            <input id="deepseek-model" type="text" name="DeepSeekModel" 
+                value="<?php echo htmlspecialchars($config['DeepSeekModel'] ?? 'deepseek-chat', ENT_QUOTES); ?>" 
+                placeholder="deepseek-chat">
+            <span class="help-text">默认: deepseek-chat</span>
+        </div>
+    </div>
+
+    <!-- 通义千问配置 -->
+    <div class="form-group">
+        <label class="group-name" for="qwen-key">通义千问 API Key:</label>
+        <div class="group-controls">
+            <div class="api-key-group">
+                <input id="qwen-key" type="password" name="QwenApiKey" 
+                    value="<?php echo htmlspecialchars($config['QwenApiKey'] ?? '', ENT_QUOTES); ?>" 
+                    placeholder="sk-...">
+                <button type="button" class="btn btn-small" onclick="document.getElementById('qwen-key').value=''; document.getElementById('qwen-key').type='text'; setTimeout(() => document.getElementById('qwen-key').type='password', 100);">清除</button>
+                <!-- 验证按钮已移除，改用日志提示状态 -->
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="group-name" for="qwen-model">通义千问 模型:</label>
+        <div class="group-controls">
+            <input id="qwen-model" type="text" name="QwenModel" 
+                value="<?php echo htmlspecialchars($config['QwenModel'] ?? 'qwen-plus', ENT_QUOTES); ?>" 
+                placeholder="qwen-plus">
+            <span class="help-text">默认: qwen-plus</span>
+        </div>
+    </div>
+
+
+    <!-- 订阅源翻译设置 -->
+    <div class="form-group">
+        <label class="group-name">订阅源设置:</label>
+        <div class="group-controls">
+            <?php if (empty($feeds)): ?>
+            <span>暂无订阅源，请先在 FreshRSS 中添加</span>
+            <?php else: ?>
+            <!-- 隐藏字段：记录所有订阅源ID以处理未勾选的checkbox -->
+            <?php foreach ($feeds as $feedId => $feed): ?>
+            <input type="hidden" name="feed_ids[]" value="<?php echo $feedId; ?>">
+            <?php endforeach; ?>
+            
+            <table class="feed-list">
+                <thead>
+                    <tr>
+                        <th class="feed-name">订阅源名称</th>
+                        <th class="feed-controls-cell">翻译标题</th>
+                        <th class="feed-controls-cell">生成摘要</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($feeds as $feedId => $feed):
+                        $feedName = htmlspecialchars($feed->name(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                        $isTranslateChecked = isset($config['TranslateTitles'][$feedId]) && $config['TranslateTitles'][$feedId] === '1';
+                        $isSummarizeChecked = isset($config['SummarizeContents'][$feedId]) && $config['SummarizeContents'][$feedId] === '1';
+                    ?>
+                    <tr>
+                        <td class="feed-name"><?php echo $feedName; ?></td>
+                        <td class="feed-controls-cell">
+                            <input type="checkbox" id="translate-feed-<?php echo $feedId; ?>" 
+                                name="TranslateTitles[<?php echo $feedId; ?>]" value="1" 
+                                <?php echo $isTranslateChecked ? 'checked' : ''; ?>>
+                        </td>
+                        <td class="feed-controls-cell">
+                            <input type="checkbox" id="summarize-feed-<?php echo $feedId; ?>" 
+                                name="SummarizeContents[<?php echo $feedId; ?>]" value="1" 
+                                <?php echo $isSummarizeChecked ? 'checked' : ''; ?>>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Token 统计信息 -->
+    <?php 
+    // 确保token_stats存在且为数组
+    if (!isset($token_stats) || !is_array($token_stats)) {
+        $token_stats = TokenCounter::getStats();
+    }
+    
+    // 确保所有提供商的统计数据存在
+    if (!isset($token_stats['deepseek'])) {
+        $token_stats['deepseek'] = ['prompt' => 0, 'completion' => 0, 'total' => 0, 'cost' => 0];
+    }
+    
+    if (!isset($token_stats['qwen'])) {
+        $token_stats['qwen'] = ['prompt' => 0, 'completion' => 0, 'total' => 0, 'cost' => 0];
+    }
+    ?>
+    
+    <!-- 提交与取消按钮 -->
+    <div class="form-group form-actions">
+        <div class="group-controls">
+            <button type="submit" class="btn btn-important"><?php echo _t('gen.action.submit'); ?></button>
+            <button type="button" class="btn" onclick="history.back();"><?php echo _t('gen.action.cancel'); ?></button>
+        </div>
+    </div>
+</form>
+</div>
+
+<script>
+
+
+
+</script>

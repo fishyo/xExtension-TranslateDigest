@@ -1,0 +1,9 @@
+{
+    "name": "TranslateDigest",
+    "version": "0.1.0",
+    "description": "Translate titles & summarize content per feed with AI providers (Google / DeepSeek / Qianwen).",
+    "author": "fishyo",
+    "website": "https://github.com/fishyo/TranslateDigest",
+    "entrypoint": "TranslateDigest",
+    "type": "user"
+}

@@ -1,60 +1,63 @@
-# TranslateTitlesCN
+# TranslateDigest (FreshRSS 扩展)
 
-`TranslateTitlesCN` 是一个为 [FreshRSS](https://github.com/FreshRSS/FreshRSS) 开发的插件，它能够将指定订阅源中的文章标题翻译成中文。用户可以选择使用 DeeplX、谷歌翻译或 LibreTranslate 服务来完成翻译。
+## 介绍
+**TranslateDigest** 是一个功能强大的 FreshRSS 扩展，旨在通过 AI 技术提升您的阅读效率。它不仅能够自动将订阅源的文章标题翻译成您熟悉的语言，还能利用先进的大语言模型（LLM）为长篇文章生成精简摘要。无论您是订阅了大量外文资讯，还是希望快速筛选每日新闻，TranslateDigest 都能助您一臂之力。
 
-原项目：[TranslateTitlesCN](https://github.com/jacob2826/FreshRSS-TranslateTitlesCN)，我在此基础上添加了以下功能：
+### 核心功能
+*   **多语言标题翻译**：支持将文章标题自动翻译为中文、英文、日文、法文或德文。
+*   **AI 智能摘要**：集成 DeepSeek 和通义千问（Qwen）大模型，自动提炼文章核心内容，生成高质量摘要。
+*   **灵活的订阅源管理**：支持按订阅源粒度控制，您可以为特定的 Feed 单独开启“翻译”或“摘要”功能。
+*   **多服务支持**：
+    *   **Google 翻译**：免费、快速，适用于基础的标题翻译。
+    *   **DeepSeek / 通义千问**：强大的 AI 模型，支持标题翻译及内容摘要。
+*   **成本控制**：内置 Token 消耗统计与字符数限制功能，帮助您有效监控和控制 API 使用成本。
 
-- 现在支持 LibreTranslate 翻译服务。
-- 修复了自动刷新时无法翻译的问题。
+## 配置
 
-## 参考图
+在使用本插件之前，您需要进行简单的配置。请在 FreshRSS 的扩展管理页面找到 TranslateDigest 并点击配置按钮。
 
-<img src="https://github.com/yarin-zhang/FreshRSS-TranslateTitlesCN/blob/main/img/screenshot-20241115-214506.png" width="300px"/>
+### 1. 选择翻译服务
+*   **Google 翻译**：默认选项，无需 API Key，仅支持标题翻译。
+*   **DeepSeek / 通义千问**：推荐选项。若要使用“生成摘要”功能，必须选择其中之一。
+    *   需自行申请并填写对应的 **API Key**。
+    *   支持自定义模型名称（如 `deepseek-chat`, `qwen-plus` 等）。
 
-<img src="https://github.com/yarin-zhang/FreshRSS-TranslateTitlesCN/blob/main/img/screenshot-20241115-215959.png" width="300px"/>
+### 2. 通用设置
+*   **目标语言**：选择您希望将标题翻译成的语言（默认为中文）。
+*   **同语言跳过**：建议开启。开启后，如果检测到原文语言与目标语言一致，将自动跳过翻译，节省资源。
+*   **最大字符数**：设置发送给 AI 进行处理的文章最大字符数（建议 3000-5000）。超出的部分将被截断，以避免消耗过多 Token 或超出模型限制。
 
-## 安装方法
+### 3. 订阅源管理 (Feed Settings)
+在配置页面的底部，您会看到所有已订阅的 Feed 列表。
+*   **翻译标题**：勾选后，该 Feed 新抓取的文章标题将被翻译。
+*   **生成摘要**：勾选后，该 Feed 新抓取的文章将由 AI 生成摘要并显示在正文中。
+*   *提示：建议仅对重要的或外语 Feed 开启此功能，以节省 API 调用次数。*
 
-1. 下载 `TranslateTitlesCN` 插件。
-2. 将`TranslateTitlesCN`文件夹放置在您的 FreshRSS 实例的 `./extensions` 目录下。
-3. 登录到您的 FreshRSS 实例。
-4. 进入管理面板，然后导航到“扩展”部分。
-5. 在插件列表中找到 `TranslateTitlesCN`，点击“启用”。
+## 使用
 
-## 使用方法
+1.  **安装插件**：
+    *   将 `TranslateDigest` 文件夹下载并放置到您的 FreshRSS 安装目录下的 `extensions` 文件夹中。
+    *   或者通过 git 克隆到该目录：`git clone https://github.com/fishyo/TranslateDigest.git`
 
-安装并启用插件后，进入插件的配置页面进行相关设置。在这里，您可以：
+2.  **启用插件**：
+    *   登录 FreshRSS，点击右上角的设置图标，进入“管理” -> “扩展”。
+    *   在列表中找到 “TranslateDigest”，点击启用。
 
-- **选择翻译服务**：您可以选择 DeeplX、谷歌翻译或 LibreTranslate 作为翻译服务提供者。
-  - **DeeplX**：使用 DeeplX 服务进行翻译时，
-    - 您可以选择部署 [DeeplX](https://github.com/OwO-Network/DeepLX/) 项目，并在插件配置中提供 DeeplX API 地址。默认地址为 `http://localhost:1188/translate`。
-    - 或您可以使用其他人已部署好的 DeeplX 服务的 API 地址，如 `https://api.deeplx.fun/translate`。
-  - **谷歌翻译**：选择谷歌翻译服务不需要额外配置。
-  - **LibreTranslate**：使用 LibreTranslate 服务时，
-    - 您可以自行部署 [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) 服务，这是一个开源的离线翻译服务，可以有效避免网络不佳导致无法翻译的情况。
-    - 您也可以选择使用别人部署好的公共实例。
-    - 需要在插件配置中设置 LibreTranslate 服务器地址，例如 `https://libretranslate.com/`。
-    - 如果您的 LibreTranslate 服务器需要 API Key，请在配置中填写。
-    - 公共实例列表可参考：[LibreTranslate 公共实例](https://github.com/LibreTranslate/LibreTranslate#mirrors)
-- **为每个订阅源单独启用或禁用翻译功能**：您可以控制哪些订阅源的标题需要被翻译。
+3.  **日常使用**：
+    *   插件配置完成后，它会在 FreshRSS 后台自动运行。
+    *   每当 FreshRSS 抓取到新的文章时，插件会根据您的设置自动处理。
+    *   **查看效果**：在阅读列表页，您将看到翻译后的标题；点击文章进入详情页，摘要通常会显示在文章内容的开头部分。
 
 ## 注意事项
+*   **API 成本**：使用 DeepSeek 或通义千问服务会产生 API 调用费用，具体费率请参考对应服务商的官方说明。插件提供了 Token 统计功能供您参考。
+*   **处理时间**：开启 AI 摘要功能可能会轻微增加 Feed 抓取所需的时间，因为需要等待 AI 接口返回数据。
+*   **依赖环境**：本插件依赖 PHP `mbstring` 扩展，请确保您的服务器已安装该扩展（个人测试是不需要操心这个，只要放到扩展文件夹就可以工作）。
 
-- 使用 DeeplX 服务时，请确保 DeeplX 项目已正确部署，且 API 地址设置正确。
-- 为防止频繁请求 DeeplX 导致 IP 被封禁，请谨慎使用。
-- 本插件仅适用于 FreshRSS，确保您的 FreshRSS 版本与插件兼容。
+---
 
-## 相关教程
+## 致谢
 
-- [如何通过 Docker 部署 FreshRSS 服务，实现 RSS 自由](https://utgd.net/article/20972)
-- [FreshRSS 插件配合 LibreTranslate 实现纯本地的 RSS 标题翻译](https://utgd.net/article/20973)
+本项目受到 [FreshRSS-TranslateTitlesCN](https://github.com/jacob2826/FreshRSS-TranslateTitlesCN) 的启发，感谢 [@jacob2826](https://github.com/jacob2826) 的开创性工作。在此基础上，我们扩展了更多功能，包括 AI 摘要生成、多服务支持以及更灵活的配置选项。
 
-## 贡献
-
-如果您对 `TranslateTitlesCN` 有任何改进建议或想要贡献代码，请通过 GitHub 仓库提交 Pull Request 或 Issue。
-
-## 许可
-
-该项目根据 [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) 开源。
-
-> **声明**: 本项目在开发过程中大量使用了 [ChatGPT](https://chat.openai.com/)，特此对 [OpenAI](https://openai.com) 表示感谢。
+---
+*如有问题或建议，欢迎提交 Issue 反馈。*
