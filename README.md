@@ -1,73 +1,215 @@
-# TranslateDigest (FreshRSS Extension)
+# TranslateDigest
 
-## Introduction
-
-**TranslateDigest** is a powerful FreshRSS extension designed to enhance your reading efficiency using AI technology. It not only automatically translates article titles from subscribed feeds into your preferred language but also leverages advanced Large Language Models (LLM) to generate concise summaries for long articles. Whether you subscribe to a large number of foreign language news sources or want to quickly filter daily news, TranslateDigest has you covered.
-
-### Core Features
-
-- **Multi-language title translation**: Supports automatic translation of article titles into Chinese, English, Japanese, French, or German.
-- **AI intelligent summarization**: Integrates DeepSeek and Qwen (Tongyi Qianwen) large models to automatically extract core content and generate high-quality summaries.
-- **Flexible feed management**: Supports per-feed granular control. You can enable "translation" or "summarization" features for specific feeds individually.
-- **Multi-service support**:
-  - **Google Translate**: Free, fast, suitable for basic title translation.
-  - **DeepSeek / Qwen**: Powerful AI models that support both title translation and content summarization.
-- **Cost control**: Built-in token consumption statistics and character limit functionality to help you effectively monitor and control API usage costs.
-
-## Configuration
-
-Before using this plugin, you need to perform simple configuration. Please find TranslateDigest in the extension management page of FreshRSS and click the configure button.
-
-### 1. Select translation service
-
-- **Google Translate**: Default option, no API Key required, only supports title translation.
-- **DeepSeek / Qwen**: Recommended option. To use the "generate summary" feature, you must select one of them.
-  - Need to apply for and fill in the corresponding **API Key** by yourself.
-  - Supports custom model names (such as `deepseek-chat`, `qwen-plus`, etc.).
-
-### 2. General settings
-
-- **Target language**: Select the language you want to translate titles into (default is Chinese).
-- **Skip same language**: It is recommended to enable this option. After enabling, if the original language is detected to be the same as the target language, translation will be automatically skipped to save resources.
-- **Maximum character count**: Set the maximum number of characters for articles sent to AI for processing (recommended 3000-5000). The excess part will be truncated to avoid excessive token consumption or exceeding model limits.
-
-### 3. Feed Settings
-
-At the bottom of the configuration page, you will see a list of all subscribed feeds.
-
-- **Translate title**: After checking, new articles grabbed from this feed will have their titles translated.
-- **Generate summary**: After checking, new articles grabbed from this feed will be summarized by AI and displayed in the body.
-- _Tip: It is recommended to enable this feature only for important or foreign language feeds to save API calls._
-
-## Usage
-
-1.  **Install the plugin**:
-
-    - Download the `TranslateDigest` folder and place it in the `extensions` folder under your FreshRSS installation directory.
-    - Or clone to this directory via git: `git clone https://github.com/fishyo/TranslateDigest.git`
-
-2.  **Enable the plugin**:
-
-    - Log in to FreshRSS, click the settings icon in the upper right corner, and go to "Management" -> "Extensions".
-    - Find "TranslateDigest" in the list and click enable.
-
-3.  **Daily use**:
-    - After the plugin is configured, it will run automatically in the background of FreshRSS.
-    - Whenever FreshRSS grabs new articles, the plugin will automatically process them according to your settings.
-    - **View effect**: On the reading list page, you will see the translated title; click the article to enter the detail page, the summary will usually be displayed at the beginning of the article content.
-
-## Notes
-
-- **API cost**: Using DeepSeek or Qwen services will incur API call fees. Please refer to the official instructions of the corresponding service provider for specific rates. The plugin provides token statistics for your reference.
-- **Processing time**: Enabling the AI summary feature may slightly increase the time required for feed grabbing because it needs to wait for the AI interface to return data.
-- **Dependency environment**: This plugin relies on the PHP `mbstring` extension. Please ensure that this extension is installed on your server (personal testing shows that you don’t need to worry about this, just put it in the extension folder and it will work).
+[中文](#中文) | [English](#english)
 
 ---
 
-## Acknowledgments
+## 中文
+
+### 📖 简介
+
+**TranslateDigest** 是一个功能强大的 FreshRSS 扩展插件，旨在通过 AI 技术提升您的 RSS 阅读体验。它能够自动翻译订阅源的文章标题，并利用先进的大语言模型（LLM）为文章生成智能摘要。
+
+### ✨ 核心功能
+
+- **🌍 多语言标题翻译**  
+  支持自动翻译文章标题为中文、英文、日文、法文或德文
+
+- **🤖 AI 智能摘要**  
+  集成 DeepSeek 和通义千问（Qwen）大模型，自动提炼文章核心内容
+
+- **⚙️ 灵活的订阅源管理**  
+  支持按订阅源粒度控制，可为特定 Feed 单独开启翻译或摘要功能
+
+- **🔌 多服务提供商支持**
+  - **Google 翻译**：免费、快速，适用于基础标题翻译
+  - **DeepSeek**：强大的 AI 模型，支持翻译和摘要
+  - **通义千问**：阿里云 AI 服务，支持翻译和摘要
+
+- **💰 成本控制**  
+  内置 Token 消耗统计与字符数限制功能，有效监控 API 使用成本
+
+### 📦 安装
+
+1. **下载插件**
+   `ash
+   cd /path/to/FreshRSS/extensions
+   git clone https://github.com/fishyo/TranslateDigest.git
+   `
+
+2. **启用插件**
+   - 登录 FreshRSS
+   - 进入 设置 → 扩展
+   - 找到 TranslateDigest 并点击启用
+
+### ⚙️ 配置
+
+在 FreshRSS 扩展管理页面找到 TranslateDigest 并点击配置。
+
+#### 1️⃣ 选择翻译服务
+
+- **Google 翻译**（默认）
+  - 无需 API Key
+  - 仅支持标题翻译
+  - 完全免费
+
+- **DeepSeek / 通义千问**（推荐用于摘要）
+  - 需要申请并填写 API Key
+  - 支持标题翻译和内容摘要
+  - 支持自定义模型（如 deepseek-chat, qwen-plus）
+
+#### 2️⃣ 通用设置
+
+| 选项 | 说明 |
+|------|------|
+| **目标语言** | 选择翻译目标语言（默认：中文） |
+| **同语言跳过** | 自动检测并跳过已是目标语言的文章，节省资源 |
+| **最大字符数** | 限制发送给 AI 的文本长度（建议 3000-5000） |
+
+#### 3️⃣ 订阅源设置
+
+在配置页面底部的订阅源列表中：
+- ✅ **翻译标题**：勾选后自动翻译该订阅源的标题
+- ✅ **生成摘要**：勾选后为文章生成 AI 摘要
+
+> 💡 **提示**：建议仅对重要的或外语订阅源开启，以节省 API 调用
+
+### 🚀 使用
+
+配置完成后，插件会自动运行：
+
+1. FreshRSS 抓取新文章时，插件自动处理
+2. 在文章列表查看翻译后的标题
+3. 打开文章详情查看 AI 生成的摘要（显示在文章开头）
+
+### 📊 Token 统计
+
+插件内置了 Token 使用统计功能：
+- 实时跟踪 DeepSeek 和通义千问的 Token 消耗
+- 自动计算预估费用（基于官方定价）
+- 可在配置页面查看详细统计数据
+- 支持重置统计记录
+
+### ⚠️ 注意事项
+
+- **API 成本**：DeepSeek 和通义千问会产生调用费用，请查看对应服务商的费率
+- **处理时间**：AI 摘要功能会增加少量抓取时间
+- **依赖环境**：需要 PHP mbstring 扩展（一般已默认安装）
+
+### 🙏 致谢
+
+本项目受到 [FreshRSS-TranslateTitlesCN](https://github.com/jacob2826/FreshRSS-TranslateTitlesCN) 的启发，感谢 [@jacob2826](https://github.com/jacob2826)
+
+### 📝 许可证
+
+[MIT License](LICENSE)
+
+### 🐛 问题反馈
+
+如有问题或建议，欢迎提交 [Issue](https://github.com/fishyo/TranslateDigest/issues)
+
+---
+
+## English
+
+### 📖 Introduction
+
+**TranslateDigest** is a powerful FreshRSS extension designed to enhance your RSS reading experience through AI technology. It automatically translates article titles and generates intelligent summaries using advanced Large Language Models (LLM).
+
+### ✨ Key Features
+
+- **🌍 Multi-language Title Translation**  
+  Automatically translate article titles to Chinese, English, Japanese, French, or German
+
+- **🤖 AI-Powered Summaries**  
+  Integrated with DeepSeek and Qwen models to extract core content
+
+- **⚙️ Flexible Feed Management**  
+  Granular control per feed - enable translation or summarization for specific feeds
+
+- **🔌 Multiple Service Providers**
+  - **Google Translate**: Free, fast, suitable for basic title translation
+  - **DeepSeek**: Powerful AI model supporting both translation and summarization
+  - **Qwen (Tongyi Qianwen)**: Alibaba Cloud AI service with translation and summary capabilities
+
+- **💰 Cost Control**  
+  Built-in token usage statistics and character limits to monitor API costs
+
+### 📦 Installation
+
+1. **Download the Extension**
+   `ash
+   cd /path/to/FreshRSS/extensions
+   git clone https://github.com/fishyo/TranslateDigest.git
+   `
+
+2. **Enable the Extension**
+   - Log into FreshRSS
+   - Navigate to Settings → Extensions
+   - Find TranslateDigest and enable it
+
+### ⚙️ Configuration
+
+Go to the FreshRSS extension management page and click configure for TranslateDigest.
+
+#### 1️⃣ Choose Translation Service
+
+- **Google Translate** (Default)
+  - No API Key required
+  - Title translation only
+  - Completely free
+
+- **DeepSeek / Qwen** (Recommended for summaries)
+  - Requires API Key
+  - Supports both translation and summarization
+  - Customizable models (e.g., deepseek-chat, qwen-plus)
+
+#### 2️⃣ General Settings
+
+| Option | Description |
+|--------|-------------|
+| **Target Language** | Choose translation target language (default: Chinese) |
+| **Skip Same Language** | Auto-detect and skip articles already in target language |
+| **Max Characters** | Limit text length sent to AI (recommended: 3000-5000) |
+
+#### 3️⃣ Feed Settings
+
+In the feed list at the bottom of the configuration page:
+- ✅ **Translate Title**: Auto-translate titles for this feed
+- ✅ **Generate Summary**: Generate AI summaries for articles
+
+> 💡 **Tip**: Enable only for important or foreign-language feeds to save API calls
+
+### 🚀 Usage
+
+After configuration, the extension runs automatically:
+
+1. When FreshRSS fetches new articles, the plugin processes them
+2. View translated titles in the article list
+3. Open article details to see AI-generated summaries (displayed at the beginning)
+
+### 📊 Token Statistics
+
+The plugin includes built-in token usage tracking:
+- Real-time monitoring of DeepSeek and Qwen token consumption
+- Automatic cost estimation (based on official pricing)
+- View detailed statistics in the configuration page
+- Support for resetting statistics
+
+### ⚠️ Notes
+
+- **API Costs**: DeepSeek and Qwen services incur usage fees - check provider pricing
+- **Processing Time**: AI summary feature adds slight delay to feed fetching
+- **Requirements**: Requires PHP mbstring extension (usually pre-installed)
+
+### 🙏 Acknowledgments
 
 This project is inspired by [FreshRSS-TranslateTitlesCN](https://github.com/jacob2826/FreshRSS-TranslateTitlesCN). Thanks to [@jacob2826](https://github.com/jacob2826)
 
----
+### 📝 License
 
-_If you have any questions or suggestions, please submit an Issue._
+[MIT License](LICENSE)
+
+### 🐛 Feedback
+
+For issues or suggestions, please submit an [Issue](https://github.com/fishyo/TranslateDigest/issues)
