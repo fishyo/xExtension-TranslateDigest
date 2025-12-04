@@ -25,7 +25,7 @@
 
 ### 📖 简介
 
-**TranslateDigest** 是一个功能强大的 FreshRSS 扩展插件，旨在通过 AI 技术提升您的 RSS 阅读体验。它能够自动翻译订阅源的文章标题，并利用先进的大语言模型（LLM）为文章生成智能摘要。
+**TranslateDigest** 是一个功能强大的 FreshRSS 扩展插件，旨在通过 AI 技术提升您的 RSS 阅读体验。它能够自动翻译订阅源的文章标题以及生成摘要
 
 ### ✨ 核心功能
 
@@ -33,7 +33,7 @@
   支持自动翻译文章标题为中文、英文、日文、法文或德文
 
 - **🤖 AI 智能摘要**  
-  集成 DeepSeek 和通义千问（Qwen）大模型，自动提炼文章核心内容
+  集成 DeepSeek、通义千问（Qwen）以及 Gemini 对文章进行摘要（抓取内容不全面仅作速览使用）
 
 - **⚙️ 灵活的订阅源管理**  
   支持按订阅源粒度控制，可为特定 Feed 单独开启翻译或摘要功能
@@ -54,10 +54,8 @@
 
 1. **下载插件**
 
-   ```bash
-   cd /path/to/FreshRSS/extensions
-   git clone https://github.com/fishyo/TranslateDigest.git
-   ```
+   - 下载 TranslateDigest 文件夹
+   - 移动该文件夹到/FreshRSS/extensions 文件夹
 
 2. **启用插件**
    - 登录 FreshRSS
@@ -76,11 +74,10 @@
   - 仅支持标题翻译
   - 完全免费
 
-- **DeepSeek / 通义千问 / Gemini**（推荐用于摘要）
+- **DeepSeek / 通义千问 / Gemini**（使用摘要功能时请注意 token 消耗）
   - 需要申请并填写 API Key
   - 支持标题翻译和内容摘要
   - 支持自定义模型（如 `deepseek-chat`, `qwen-plus`, `gemini-2.0-flash-exp`）
-  - Gemini API Key 可在 [Google AI Studio](https://aistudio.google.com/app/apikey) 免费获取
 
 #### 2️⃣ 通用设置
 
@@ -110,6 +107,12 @@
 
 ### 🔍 诊断日志
 
+#### 使用 docker compose 命令查看动态日志
+
+```
+docker compose logs -f
+```
+
 配置页面提供详细的诊断信息帮助排查问题：
 
 #### API Key 状态验证
@@ -130,12 +133,6 @@
   2. 失败 → 尝试 Google 智能截断
   3. 仍失败 → 最终简单截断（保证摘要可用）
 
-#### 优化建议
-
-- 运行时错误会在日志中显示完整的错误栈跟踪
-- 支持按服务商筛选日志
-- Token 消耗记录帮助优化成本
-
 ### ⚠️ 注意事项
 
 - **API 成本**：AI 调用会产生调用费用，请查看对应服务商的费率
@@ -148,11 +145,7 @@
 
 ### 📝 许可证
 
-[MIT License](LICENSE)
-
-### 🐛 问题反馈
-
-如有问题或建议，欢迎提交 [Issue](https://github.com/fishyo/TranslateDigest/issues)
+[MIT License](https://opensource.org/license/mit)
 
 ---
 
@@ -177,7 +170,7 @@
 
 ### 📖 Introduction
 
-**TranslateDigest** is a powerful FreshRSS extension designed to enhance your RSS reading experience through AI technology. It automatically translates article titles and generates intelligent summaries using advanced Large Language Models (LLM).
+**TranslateDigest** is a powerful FreshRSS extension designed to enhance your RSS reading experience through AI technology. It can automatically translate article titles and generate summaries.
 
 ### ✨ Key Features
 
@@ -185,7 +178,7 @@
   Automatically translate article titles to Chinese, English, Japanese, French, or German
 
 - **🤖 AI-Powered Summaries**  
-  Integrated with DeepSeek and Qwen models to extract core content
+  Integrates DeepSeek, Qwen, and Gemini to summarize articles (crawled content may be incomplete, for quick overview only)
 
 - **⚙️ Flexible Feed Management**  
   Granular control per feed - enable translation or summarization for specific feeds
@@ -206,10 +199,8 @@
 
 1. **Download the Extension**
 
-   ```bash
-   cd /path/to/FreshRSS/extensions
-   git clone https://github.com/fishyo/TranslateDigest.git
-   ```
+   - Download the TranslateDigest folder
+   - Move the folder to `/FreshRSS/extensions` folder
 
 2. **Enable the Extension**
    - Log into FreshRSS
@@ -228,11 +219,10 @@ Go to the FreshRSS extension management page and click configure for TranslateDi
   - Title translation only
   - Completely free
 
-- **DeepSeek / Qwen / Gemini** (Recommended for summaries)
+- **DeepSeek / Qwen / Gemini** (Please note token consumption when using summary function)
   - Requires API Key
   - Supports both translation and summarization
   - Customizable models (e.g., `deepseek-chat`, `qwen-plus`, `gemini-2.0-flash-exp`)
-  - Gemini API Key available free at [Google AI Studio](https://aistudio.google.com/app/apikey)
 
 #### 2️⃣ General Settings
 
@@ -262,6 +252,12 @@ After configuration, the extension runs automatically:
 
 ### 🔍 Diagnostic Logs
 
+#### View Real-time Logs with Docker Compose Command
+
+```
+docker compose logs -f
+```
+
 The configuration page provides detailed diagnostic information to troubleshoot issues:
 
 #### API Key Status Verification
@@ -282,12 +278,6 @@ The configuration page provides detailed diagnostic information to troubleshoot 
   2. Failure → Try Google intelligent truncation
   3. Still failure → Final simple truncation (ensure summary availability)
 
-#### Optimization Suggestions
-
-- Runtime errors display complete error stack traces in logs
-- Support filtering logs by service provider
-- Token consumption records help optimize costs
-
 ### ⚠️ Notes
 
 - **API Costs**: DeepSeek and Qwen services incur usage fees - check provider pricing
@@ -300,8 +290,6 @@ This project is inspired by [FreshRSS-TranslateTitlesCN](https://github.com/jaco
 
 ### 📝 License
 
-[MIT License](LICENSE)
-
-### 🐛 Feedback
+[MIT License](https://opensource.org/license/mit)
 
 For issues or suggestions, please submit an [Issue](https://github.com/fishyo/TranslateDigest/issues)
