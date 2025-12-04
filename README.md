@@ -295,3 +295,26 @@ This project is inspired by [FreshRSS-TranslateTitlesCN](https://github.com/jaco
 ### 🐛 Feedback
 
 For issues or suggestions, please submit an [Issue](https://github.com/fishyo/TranslateDigest/issues)
+
+---
+
+## 📋 更新日志
+
+### 2025-12-04
+
+**✨ 功能改进**
+- 修复配置保存问题（移除 initializeDefaultConfig 导致的冲突）
+- 改进摘要服务的 Fallback 策略（支持多级兜底）
+- 增强 Google Provider 的摘要能力（智能在句末截断）
+- 优化 API Key 验证日志（显示具体验证结果）
+
+**🔧 技术优化**
+- 添加错误分类机制（避免浪费 Token 重试永久性错误）
+- 实现完整的 Fallback 链（翻译和摘要都有兜底方案）
+- 改进 TextUtil 文本处理（HTML 实体解码、标点空格修复）
+- 优化 Token 计数和成本控制
+
+**📝 文档更新**
+- 添加诊断日志说明
+- 更新 API Key 状态验证文档
+- 补充智能容错机制说明
