@@ -39,10 +39,10 @@
 ### 📦 安装
 
 1. **下载插件**
-   `ash
-cd /path/to/FreshRSS/extensions
-git clone https://github.com/fishyo/TranslateDigest.git
-`
+   ```bash
+   cd /path/to/FreshRSS/extensions
+   git clone https://github.com/fishyo/TranslateDigest.git
+   ```
 
 2. **启用插件**
    - 登录 FreshRSS
@@ -91,17 +91,6 @@ git clone https://github.com/fishyo/TranslateDigest.git
 1. FreshRSS 抓取新文章时，插件自动处理
 2. 在文章列表查看翻译后的标题
 3. 打开文章详情查看 AI 生成的摘要（显示在文章开头）
-
-### 📊 Token 统计
-
-插件内置了 Token 使用统计功能：
-
-- 实时跟踪 DeepSeek、通义千问和 Gemini 的 Token 消耗
-- 自动计算预估费用（基于官方定价）
-- 可在配置页面查看详细统计数据
-- 支持重置统计记录
-
-> 💡 **提示**：Gemini 2.0 Flash 目前完全免费，适合大量使用
 
 ### 🔍 诊断日志
 
@@ -186,10 +175,10 @@ git clone https://github.com/fishyo/TranslateDigest.git
 ### 📦 Installation
 
 1. **Download the Extension**
-   `ash
-cd /path/to/FreshRSS/extensions
-git clone https://github.com/fishyo/TranslateDigest.git
-`
+   ```bash
+   cd /path/to/FreshRSS/extensions
+   git clone https://github.com/fishyo/TranslateDigest.git
+   ```
 
 2. **Enable the Extension**
    - Log into FreshRSS
@@ -238,17 +227,6 @@ After configuration, the extension runs automatically:
 1. When FreshRSS fetches new articles, the plugin processes them
 2. View translated titles in the article list
 3. Open article details to see AI-generated summaries (displayed at the beginning)
-
-### 📊 Token Statistics
-
-The plugin includes built-in token usage tracking:
-
-- Real-time monitoring of DeepSeek, Qwen and Gemini token consumption
-- Automatic cost estimation (based on official pricing)
-- View detailed statistics in the configuration page
-- Support for resetting statistics
-
-> 💡 **Tip**: Gemini 2.0 Flash is currently completely free, ideal for heavy usage
 
 ### 🔍 Diagnostic Logs
 
