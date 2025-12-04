@@ -134,6 +134,15 @@
 </style>
 
 <div>
+    <?php 
+    // 显示配置保存错误信息（如果有）
+    if (isset($error) && !empty($error)): 
+    ?>
+    <div style="background-color: #fee; border: 1px solid #c00; color: #c00; padding: 10px; border-radius: 3px; margin-bottom: 15px;">
+        <strong>⚠ 错误：</strong> <?php echo htmlspecialchars($error); ?>
+    </div>
+    <?php endif; ?>
+
 <form action="<?php echo _url('extension', 'configure', 'e', urlencode($this->getName())); ?>" method="post">
     <input type="hidden" name="_csrf" value="<?php echo FreshRSS_Auth::csrfToken(); ?>" />
 

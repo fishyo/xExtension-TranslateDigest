@@ -20,9 +20,6 @@ class TranslateDigestExtension extends Minz_Extension {
             $this->initializeCliContext();
         }
         
-        // 初始化缺失的配置项，避免首次访问时的警告
-        $this->initializeDefaultConfig();
-        
         // 注册钩子
         $this->registerHook('feed_before_insert', [$this, 'addTranslationOption']);
         $this->registerHook('entry_before_insert', [$this, 'handleEntry']);
@@ -33,35 +30,6 @@ class TranslateDigestExtension extends Minz_Extension {
         Logger::info('Plugin configuration - Service: ' . $defaultService . ' | Target Language: ' . $targetLang);
         
         Logger::info('Initialization complete');
-    }
-
-    /**
-     * 初始化缺失的配置项，避免首次使用时的警告
-     */
-    private function initializeDefaultConfig() {
-        $defaults = [
-            'TranslateDefaultService' => 'google',
-            'TranslateTitles' => '[]',
-            'SummarizeContents' => '[]',
-            'FeedServiceMap' => '{}',
-            'TranslateTargetLang' => 'zh',
-            'TranslateSkipIfSame' => '0',
-            'SummarizeContent' => '0',
-            'MaxSummaryChars' => '200',
-            'TokenMaxChars' => '4000',
-            'DeepSeekApiKey' => '',
-            'DeepSeekModel' => 'deepseek-chat',
-            'QwenApiKey' => '',
-            'QwenModel' => 'qwen-plus',
-            'GeminiApiKey' => '',
-            'GeminiModel' => 'gemini-2.5-flash',
-        ];
-        
-        foreach ($defaults as $key => $value) {
-            if (!isset(FreshRSS_Context::$user_conf->$key)) {
-                FreshRSS_Context::$user_conf->$key = $value;
-            }
-        }
     }
 
     /**
@@ -115,6 +83,10 @@ class TranslateDigestExtension extends Minz_Extension {
             // 用于存储验证错误信息
             $validationErrors = [];
             
+            // 日志记录接收到的参数
+            Logger::info('POST params - Service: ' . $translateService . ', TargetLang: ' . $targetLang);
+            Logger::info('TranslateTitles count: ' . count($translateTitles) . ', SummarizeContents count: ' . count($summarizeContents));
+            
             // DeepSeek Key 验证（只记录日志，不阻止保存）
             if (!empty($deepseekKey)) {
                 require_once('lib/providers/DeepSeekProvider.php');
@@ -126,14 +98,18 @@ class TranslateDigestExtension extends Minz_Extension {
                         $errorMsg = 'DeepSeek API Key 验证失败: ' . $result['message'];
                         Logger::warning($errorMsg);
                         $validationErrors['deepseek'] = $errorMsg;
+                        Logger::info('DeepSeek key validation: ✗ INVALID - ' . $result['message']);
                     } else {
-                        Logger::info('DeepSeek key validated successfully');
+                        Logger::info('DeepSeek key validation: ✓ VALID');
                     }
                 } catch (Exception $e) {
                     $errorMsg = 'DeepSeek API Key 验证异常: ' . $e->getMessage();
                     Logger::warning($errorMsg);
                     $validationErrors['deepseek'] = $errorMsg;
+                    Logger::info('DeepSeek key validation: ✗ ERROR - ' . $e->getMessage());
                 }
+            } else {
+                Logger::info('DeepSeek key validation: SKIPPED (empty)');
             }
 
             // Qwen Key 验证（只记录日志，不阻止保存）
@@ -147,14 +123,18 @@ class TranslateDigestExtension extends Minz_Extension {
                         $errorMsg = '通义千问 API Key 验证失败: ' . $result['message'];
                         Logger::warning($errorMsg);
                         $validationErrors['qwen'] = $errorMsg;
+                        Logger::info('Qwen key validation: ✗ INVALID - ' . $result['message']);
                     } else {
-                        Logger::info('Qwen key validated successfully');
+                        Logger::info('Qwen key validation: ✓ VALID');
                     }
                 } catch (Exception $e) {
                     $errorMsg = '通义千问 API Key 验证异常: ' . $e->getMessage();
                     Logger::warning($errorMsg);
                     $validationErrors['qwen'] = $errorMsg;
+                    Logger::info('Qwen key validation: ✗ ERROR - ' . $e->getMessage());
                 }
+            } else {
+                Logger::info('Qwen key validation: SKIPPED (empty)');
             }
 
             // Gemini Key 验证（只记录日志，不阻止保存）
@@ -168,40 +148,70 @@ class TranslateDigestExtension extends Minz_Extension {
                         $errorMsg = 'Gemini API Key 验证失败: ' . $result['message'];
                         Logger::warning($errorMsg);
                         $validationErrors['gemini'] = $errorMsg;
+                        Logger::info('Gemini key validation: ✗ INVALID - ' . $result['message']);
                     } else {
-                        Logger::info('Gemini key validated successfully');
+                        Logger::info('Gemini key validation: ✓ VALID');
                     }
                 } catch (Exception $e) {
                     $errorMsg = 'Gemini API Key 验证异常: ' . $e->getMessage();
                     Logger::warning($errorMsg);
                     $validationErrors['gemini'] = $errorMsg;
+                    Logger::info('Gemini key validation: ✗ ERROR - ' . $e->getMessage());
                 }
+            } else {
+                Logger::info('Gemini key validation: SKIPPED (empty)');
             }
             
             // 将验证错误信息存储到视图中
             $this->view['validationErrors'] = $validationErrors;
 
-            // 验证通过后保存配置
+            // 设置所有配置参数
             FreshRSS_Context::$user_conf->TranslateDefaultService = $translateService;
             FreshRSS_Context::$user_conf->TranslateTitles = json_encode($translateTitles);
             FreshRSS_Context::$user_conf->SummarizeContents = json_encode($summarizeContents);
             FreshRSS_Context::$user_conf->TranslateSkipIfSame = $translateSkipIfSame;
             FreshRSS_Context::$user_conf->TranslateTargetLang = $targetLang;
             FreshRSS_Context::$user_conf->DeepSeekApiKey = $deepseekKey;
-            Logger::info('DeepSeek key ' . (empty($deepseekKey) ? 'EMPTY' : ('SET ' . $deepseekMasked)));
             FreshRSS_Context::$user_conf->DeepSeekModel = $deepseekModel;
             FreshRSS_Context::$user_conf->QwenApiKey = $qwenKey;
-            Logger::info('Qwen key ' . (empty($qwenKey) ? 'EMPTY' : ('SET ' . $qwenMasked)));
             FreshRSS_Context::$user_conf->QwenModel = $qwenModel;
             FreshRSS_Context::$user_conf->GeminiApiKey = $geminiKey;
-            Logger::info('Gemini key ' . (empty($geminiKey) ? 'EMPTY' : ('SET ' . $geminiMasked)));
             FreshRSS_Context::$user_conf->GeminiModel = $geminiModel;
             FreshRSS_Context::$user_conf->TokenMaxChars = $tokenMaxChars;
             FreshRSS_Context::$user_conf->SummarizeContent = $summarizeContent;
             FreshRSS_Context::$user_conf->MaxSummaryChars = $maxSummaryChars;
 
+            Logger::info('Set config values - Service: ' . $translateService . ', TargetLang: ' . $targetLang);
+            Logger::info('Keys saved - DeepSeek: ' . (empty($deepseekKey) ? 'EMPTY' : 'SET (' . $deepseekMasked . ')'));
+            Logger::info('Keys saved - Qwen: ' . (empty($qwenKey) ? 'EMPTY' : 'SET (' . $qwenMasked . ')'));
+            Logger::info('Keys saved - Gemini: ' . (empty($geminiKey) ? 'EMPTY' : 'SET (' . $geminiMasked . ')'));
+            
+            // 总结验证结果
+            Logger::info('=== Configuration Save Summary ===');
+            Logger::info('DeepSeek: ' . (isset($validationErrors['deepseek']) ? '✗ ' . $validationErrors['deepseek'] : (empty($deepseekKey) ? 'EMPTY' : '✓ VALID')));
+            Logger::info('Qwen: ' . (isset($validationErrors['qwen']) ? '✗ ' . $validationErrors['qwen'] : (empty($qwenKey) ? 'EMPTY' : '✓ VALID')));
+            Logger::info('Gemini: ' . (isset($validationErrors['gemini']) ? '✗ ' . $validationErrors['gemini'] : (empty($geminiKey) ? 'EMPTY' : '✓ VALID')));
+            Logger::info('=================================');
+
+            // 调用 save() 方法
             $saved = FreshRSS_Context::$user_conf->save();
-            Logger::info('Config save attempt: ' . ($saved ? 'SUCCESS' : 'FAILED'));
+            Logger::info('Config save() called - Result: ' . ($saved ? 'TRUE' : 'FALSE'));
+            
+            // 验证保存是否成功（重新读取配置）
+            $verifyConfig = FreshRSS_Context::$user_conf;
+            Logger::info('Verify after save - Service: ' . ($verifyConfig->TranslateDefaultService ?? 'NOT SET'));
+            Logger::info('Verify after save - TargetLang: ' . ($verifyConfig->TranslateTargetLang ?? 'NOT SET'));
+            
+            // 保存成功后，重定向回配置页面
+            if ($saved) {
+                Logger::info('Configuration saved successfully, redirecting...');
+                $redirect_url = _url('extension', 'configure', 'e', 'TranslateDigest');
+                header('Location: ' . $redirect_url);
+                exit();
+            } else {
+                Logger::error('Failed to save configuration - save() returned false');
+                $this->view['error'] = 'Configuration save failed';
+            }
         } 
         
         // 无论请求类型是什么，都获取token统计信息
@@ -214,9 +224,13 @@ class TranslateDigestExtension extends Minz_Extension {
             // 读取并记录当前已保存的 API Key 状态（掩码显示）
             $deepseekSaved = FreshRSS_Context::$user_conf->DeepSeekApiKey ?? '';
             $qwenSaved = FreshRSS_Context::$user_conf->QwenApiKey ?? '';
+            $geminiSaved = FreshRSS_Context::$user_conf->GeminiApiKey ?? '';
+            
             $deepseekMasked = empty($deepseekSaved) ? 'EMPTY' : (substr($deepseekSaved, 0, 4) . '...' . substr($deepseekSaved, -4));
             $qwenMasked = empty($qwenSaved) ? 'EMPTY' : (substr($qwenSaved, 0, 4) . '...' . substr($qwenSaved, -4));
-            Logger::info('Key status on load: DeepSeek=' . $deepseekMasked . ', Qwen=' . $qwenMasked);
+            $geminiMasked = empty($geminiSaved) ? 'EMPTY' : (substr($geminiSaved, 0, 4) . '...' . substr($geminiSaved, -4));
+            
+            Logger::info('Key status on load: DeepSeek=' . $deepseekMasked . ', Qwen=' . $qwenMasked . ', Gemini=' . $geminiMasked);
         }
     }
 

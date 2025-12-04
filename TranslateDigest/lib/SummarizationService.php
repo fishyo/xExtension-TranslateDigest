@@ -51,6 +51,7 @@ class SummarizationService {
         }
 
         $output = null;
+        $usedService = $serviceName;
 
         Logger::info('Summarization start - Service: ' . strtoupper($serviceName) . ' | Target: ' . $this->targetLang . ' | MaxChars: ' . $this->maxChars);
         Logger::debug('Text to summarize: ' . mb_substr($clean, 0, 50));
@@ -73,20 +74,33 @@ class SummarizationService {
 
                 if (!empty($output)) {
                     Logger::info('Summarization API call - Service: ' . strtoupper($serviceName) . ' | Result: ' . mb_substr($output, 0, 50));
-                    // 保存到内存缓存
                     self::$cache[$cacheKey] = $output;
+                    return $output;
                 }
-            } else {
-                // fallback: 简单截断
-                $output = mb_substr($clean, 0, $this->maxChars);
-                Logger::info('Summarization not supported by ' . strtoupper($serviceName) . ' - Fallback: TRUNCATION');
             }
         } catch (Exception $e) {
             Logger::exception($e, 'Summarization with ' . strtoupper($serviceName));
-            $output = mb_substr($clean, 0, $this->maxChars);
-            Logger::info('Summarization fallback to truncation due to error');
+            
+            // 尝试 fallback 到 Google
+            if ($serviceName !== 'google') {
+                try {
+                    Logger::info('Summarization fallback to Google due to error');
+                    $fallbackProvider = new GoogleProvider();
+                    $output = $fallbackProvider->summarize($clean, $this->targetLang, $this->maxChars);
+                    $usedService = 'google';
+                    Logger::info('Summarization fallback successful - Service: GOOGLE | Result: ' . mb_substr($output, 0, 50));
+                    self::$cache[$cacheKey] = $output;
+                    return $output;
+                } catch (Exception $fallbackErr) {
+                    Logger::exception($fallbackErr, 'Summarization fallback to Google');
+                    Logger::warning('Summarization fallback to Google also failed, using truncation');
+                }
+            }
         }
 
+        // 最终兜底: 简单截断
+        $output = mb_substr($clean, 0, $this->maxChars);
+        Logger::info('Summarization fallback to truncation - Service: TRUNCATION | Result: ' . mb_substr($output, 0, 50));
         self::$cache[$cacheKey] = $output;
         return $output;
     }
