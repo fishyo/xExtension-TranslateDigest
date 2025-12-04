@@ -25,6 +25,7 @@
   - **Google 翻译**：免费、快速，适用于基础标题翻译
   - **DeepSeek**：强大的 AI 模型，支持翻译和摘要
   - **通义千问**：阿里云 AI 服务，支持翻译和摘要
+  - **Google Gemini**：Google 最新 AI 模型，支持翻译和摘要（免费）
 
 - **💰 成本控制**  
   内置 Token 消耗统计与字符数限制功能，有效监控 API 使用成本
@@ -53,10 +54,11 @@
   - 仅支持标题翻译
   - 完全免费
 
-- **DeepSeek / 通义千问**（推荐用于摘要）
+- **DeepSeek / 通义千问 / Gemini**（推荐用于摘要）
   - 需要申请并填写 API Key
   - 支持标题翻译和内容摘要
-  - 支持自定义模型（如 deepseek-chat, qwen-plus）
+  - 支持自定义模型（如 `deepseek-chat`, `qwen-plus`, `gemini-2.0-flash-exp`）
+  - Gemini API Key 可在 [Google AI Studio](https://aistudio.google.com/app/apikey) 免费获取
 
 #### 2️⃣ 通用设置
 
@@ -85,10 +87,12 @@
 ### 📊 Token 统计
 
 插件内置了 Token 使用统计功能：
-- 实时跟踪 DeepSeek 和通义千问的 Token 消耗
+- 实时跟踪 DeepSeek、通义千问和 Gemini 的 Token 消耗
 - 自动计算预估费用（基于官方定价）
 - 可在配置页面查看详细统计数据
 - 支持重置统计记录
+
+> 💡 **提示**：Gemini 2.0 Flash 目前完全免费，适合大量使用
 
 ### ⚠️ 注意事项
 
@@ -131,6 +135,7 @@
   - **Google Translate**: Free, fast, suitable for basic title translation
   - **DeepSeek**: Powerful AI model supporting both translation and summarization
   - **Qwen (Tongyi Qianwen)**: Alibaba Cloud AI service with translation and summary capabilities
+  - **Google Gemini**: Google's latest AI model with translation and summary features (Free)
 
 - **💰 Cost Control**  
   Built-in token usage statistics and character limits to monitor API costs
@@ -159,10 +164,11 @@ Go to the FreshRSS extension management page and click configure for TranslateDi
   - Title translation only
   - Completely free
 
-- **DeepSeek / Qwen** (Recommended for summaries)
+- **DeepSeek / Qwen / Gemini** (Recommended for summaries)
   - Requires API Key
   - Supports both translation and summarization
-  - Customizable models (e.g., deepseek-chat, qwen-plus)
+  - Customizable models (e.g., `deepseek-chat`, `qwen-plus`, `gemini-2.0-flash-exp`)
+  - Gemini API Key available free at [Google AI Studio](https://aistudio.google.com/app/apikey)
 
 #### 2️⃣ General Settings
 
@@ -191,10 +197,12 @@ After configuration, the extension runs automatically:
 ### 📊 Token Statistics
 
 The plugin includes built-in token usage tracking:
-- Real-time monitoring of DeepSeek and Qwen token consumption
+- Real-time monitoring of DeepSeek, Qwen and Gemini token consumption
 - Automatic cost estimation (based on official pricing)
 - View detailed statistics in the configuration page
 - Support for resetting statistics
+
+> 💡 **Tip**: Gemini 2.0 Flash is currently completely free, ideal for heavy usage
 
 ### ⚠️ Notes
 

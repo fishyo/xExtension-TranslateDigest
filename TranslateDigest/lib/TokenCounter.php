@@ -9,12 +9,14 @@ class TokenCounter {
     private static $costConfig = [
         'google'   => ['prompt' => 0, 'completion' => 0],
         'deepseek' => ['prompt' => 0.14, 'completion' => 0.28],
-        'qwen'  => ['prompt' => 0.002, 'completion' => 0.006]
+        'qwen'  => ['prompt' => 0.002, 'completion' => 0.006],
+        'gemini'  => ['prompt' => 0, 'completion' => 0]
     ];
 
     private static $defaultStats = [
         'deepseek' => ['prompt' => 0, 'completion' => 0, 'total' => 0, 'cost' => 0],
         'qwen'  => ['prompt' => 0, 'completion' => 0, 'total' => 0, 'cost' => 0],
+        'gemini'  => ['prompt' => 0, 'completion' => 0, 'total' => 0, 'cost' => 0],
     ];
 
     public static function recordTokens($tokenInfo, $provider, $type = 'translate') {

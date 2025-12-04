@@ -20,6 +20,9 @@ class TranslateDigestExtension extends Minz_Extension {
             $this->initializeCliContext();
         }
         
+        // 初始化缺失的配置项，避免首次访问时的警告
+        $this->initializeDefaultConfig();
+        
         // 注册钩子
         $this->registerHook('feed_before_insert', [$this, 'addTranslationOption']);
         $this->registerHook('entry_before_insert', [$this, 'handleEntry']);
@@ -30,6 +33,35 @@ class TranslateDigestExtension extends Minz_Extension {
         Logger::info('Plugin configuration - Service: ' . $defaultService . ' | Target Language: ' . $targetLang);
         
         Logger::info('Initialization complete');
+    }
+
+    /**
+     * 初始化缺失的配置项，避免首次使用时的警告
+     */
+    private function initializeDefaultConfig() {
+        $defaults = [
+            'TranslateDefaultService' => 'google',
+            'TranslateTitles' => '[]',
+            'SummarizeContents' => '[]',
+            'FeedServiceMap' => '{}',
+            'TranslateTargetLang' => 'zh',
+            'TranslateSkipIfSame' => '0',
+            'SummarizeContent' => '0',
+            'MaxSummaryChars' => '200',
+            'TokenMaxChars' => '4000',
+            'DeepSeekApiKey' => '',
+            'DeepSeekModel' => 'deepseek-chat',
+            'QwenApiKey' => '',
+            'QwenModel' => 'qwen-plus',
+            'GeminiApiKey' => '',
+            'GeminiModel' => 'gemini-2.5-flash',
+        ];
+        
+        foreach ($defaults as $key => $value) {
+            if (!isset(FreshRSS_Context::$user_conf->$key)) {
+                FreshRSS_Context::$user_conf->$key = $value;
+            }
+        }
     }
 
     /**
@@ -73,6 +105,9 @@ class TranslateDigestExtension extends Minz_Extension {
             $qwenKey = Minz_Request::param('QwenApiKey', '');
             $qwenMasked = empty($qwenKey) ? '' : (substr($qwenKey, 0, 4) . '...' . substr($qwenKey, -4));
             $qwenModel = Minz_Request::param('QwenModel', 'qwen-plus');
+            $geminiKey = Minz_Request::param('GeminiApiKey', '');
+            $geminiMasked = empty($geminiKey) ? '' : (substr($geminiKey, 0, 4) . '...' . substr($geminiKey, -4));
+            $geminiModel = Minz_Request::param('GeminiModel', 'gemini-2.0-flash-exp');
             $tokenMaxChars = Minz_Request::param('TokenMaxChars', '4000');
             $summarizeContent = Minz_Request::param('SummarizeContent', 0) ? '1' : '0';
             $maxSummaryChars = Minz_Request::param('MaxSummaryChars', '200');
@@ -121,6 +156,27 @@ class TranslateDigestExtension extends Minz_Extension {
                     $validationErrors['qwen'] = $errorMsg;
                 }
             }
+
+            // Gemini Key 验证（只记录日志，不阻止保存）
+            if (!empty($geminiKey)) {
+                require_once('lib/providers/GeminiProvider.php');
+                try {
+                    $provider = new GeminiProvider();
+                    $provider->setApiKey($geminiKey);
+                    $result = $provider->validateKey();
+                    if (!$result['ok']) {
+                        $errorMsg = 'Gemini API Key 验证失败: ' . $result['message'];
+                        Logger::warning($errorMsg);
+                        $validationErrors['gemini'] = $errorMsg;
+                    } else {
+                        Logger::info('Gemini key validated successfully');
+                    }
+                } catch (Exception $e) {
+                    $errorMsg = 'Gemini API Key 验证异常: ' . $e->getMessage();
+                    Logger::warning($errorMsg);
+                    $validationErrors['gemini'] = $errorMsg;
+                }
+            }
             
             // 将验证错误信息存储到视图中
             $this->view['validationErrors'] = $validationErrors;
@@ -137,6 +193,9 @@ class TranslateDigestExtension extends Minz_Extension {
             FreshRSS_Context::$user_conf->QwenApiKey = $qwenKey;
             Logger::info('Qwen key ' . (empty($qwenKey) ? 'EMPTY' : ('SET ' . $qwenMasked)));
             FreshRSS_Context::$user_conf->QwenModel = $qwenModel;
+            FreshRSS_Context::$user_conf->GeminiApiKey = $geminiKey;
+            Logger::info('Gemini key ' . (empty($geminiKey) ? 'EMPTY' : ('SET ' . $geminiMasked)));
+            FreshRSS_Context::$user_conf->GeminiModel = $geminiModel;
             FreshRSS_Context::$user_conf->TokenMaxChars = $tokenMaxChars;
             FreshRSS_Context::$user_conf->SummarizeContent = $summarizeContent;
             FreshRSS_Context::$user_conf->MaxSummaryChars = $maxSummaryChars;
@@ -168,6 +227,7 @@ class TranslateDigestExtension extends Minz_Extension {
             'TranslateTargetLang', 'TranslateSkipIfSame', 'SummarizeContent', 
             'SummarizeContents', 'MaxSummaryChars', 'TokenMaxChars',
             'DeepSeekApiKey', 'DeepSeekModel', 'QwenApiKey', 'QwenModel',
+            'GeminiApiKey', 'GeminiModel',
             TokenCounter::STATS_KEY
         ];
         
@@ -283,9 +343,12 @@ class TranslateDigestExtension extends Minz_Extension {
             if ($service === 'deepseek') {
                 require_once('lib/providers/DeepSeekProvider.php');
                 $providerClass = 'DeepSeekProvider';
-                } elseif ($service === 'qwen') {
+            } elseif ($service === 'qwen') {
                 require_once('lib/providers/QwenProvider.php');
                 $providerClass = 'QwenProvider';
+            } elseif ($service === 'gemini') {
+                require_once('lib/providers/GeminiProvider.php');
+                $providerClass = 'GeminiProvider';
             } else {
                 Logger::error("ValidateKeyAction unsupported service: $service");
                 echo json_encode(['success' => false, 'message' => '不支持的服务']);

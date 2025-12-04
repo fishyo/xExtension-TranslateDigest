@@ -6,6 +6,7 @@ require_once(__DIR__ . '/providers/ITranslationProvider.php');
 require_once(__DIR__ . '/providers/GoogleProvider.php');
 require_once(__DIR__ . '/providers/DeepSeekProvider.php');
 require_once(__DIR__ . '/providers/QwenProvider.php');
+require_once(__DIR__ . '/providers/GeminiProvider.php');
 
 class TranslationService {
     
@@ -24,6 +25,8 @@ class TranslationService {
                 return new DeepSeekProvider();
             case 'qwen':
                 return new QwenProvider();
+            case 'gemini':
+                return new GeminiProvider();
             case 'google':
             default:
                 return new GoogleProvider();

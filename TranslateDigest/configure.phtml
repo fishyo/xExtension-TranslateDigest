@@ -146,6 +146,8 @@
         'DeepSeekModel' => $conf->DeepSeekModel ?? 'deepseek-chat',
         'QwenApiKey' => $conf->QwenApiKey ?? '',
         'QwenModel' => $conf->QwenModel ?? 'qwen-plus',
+        'GeminiApiKey' => $conf->GeminiApiKey ?? '',
+        'GeminiModel' => $conf->GeminiModel ?? 'gemini-2.0-flash-exp',
         'TranslateTargetLang' => $conf->TranslateTargetLang ?? 'zh',
         'TranslateSkipIfSame' => ($conf->TranslateSkipIfSame ?? '0') === '1',
         'TokenMaxChars' => $conf->TokenMaxChars ?? '4000',
@@ -194,6 +196,17 @@
                     <?php echo $config['TranslateDefaultService'] === 'qwen' ? 'checked' : ''; ?>>
                 <label for="service-qwen">通义千问 
                     <?php if (!empty($config['QwenApiKey'])): ?>
+                        <span style="font-size: 12px;">✓ 已配置</span>
+                    <?php else: ?>
+                        <span style="font-size: 12px;">⚠ 未配置</span>
+                    <?php endif; ?>
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="radio" id="service-gemini" name="TranslateDefaultService" value="gemini" 
+                    <?php echo $config['TranslateDefaultService'] === 'gemini' ? 'checked' : ''; ?>>
+                <label for="service-gemini">Google Gemini 
+                    <?php if (!empty($config['GeminiApiKey'])): ?>
                         <span style="font-size: 12px;">✓ 已配置</span>
                     <?php else: ?>
                         <span style="font-size: 12px;">⚠ 未配置</span>
@@ -284,6 +297,34 @@
                 value="<?php echo htmlspecialchars($config['QwenModel'] ?? 'qwen-plus', ENT_QUOTES); ?>" 
                 placeholder="qwen-plus">
             <span class="help-text">默认: qwen-plus</span>
+        </div>
+    </div>
+
+    <!-- Gemini 配置 -->
+    <div class="form-group">
+        <label class="group-name" for="gemini-key">Gemini API Key:</label>
+        <div class="group-controls">
+            <div class="api-key-group">
+                <input id="gemini-key" type="password" name="GeminiApiKey" 
+                    value="<?php echo htmlspecialchars($config['GeminiApiKey'] ?? '', ENT_QUOTES); ?>" 
+                    placeholder="AIza...">
+                <button type="button" class="btn btn-small" onclick="document.getElementById('gemini-key').value=''; document.getElementById('gemini-key').type='text'; setTimeout(() => document.getElementById('gemini-key').type='password', 100);">清除</button>
+            </div>
+            <span class="help-text">在 <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> 获取 API Key（免费）</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="group-name" for="gemini-model">Gemini 模型:</label>
+        <div class="group-controls">
+            <input id="gemini-model" type="text" name="GeminiModel" 
+                value="<?php echo htmlspecialchars($config['GeminiModel'] ?? 'gemini-2.5-flash', ENT_QUOTES); ?>" 
+                placeholder="gemini-2.5-flash">
+            <span class="help-text">
+                默认: gemini-2.5-flash（推荐稳定版本）<br>
+                支持: gemini-3-pro-preview, gemini-2.5-flash/lite/pro, gemini-1.5-flash/pro<br>
+                ⚠️ Gemini 2.0 系列将于 2026 年 2 月弃用
+            </span>
         </div>
     </div>
 
