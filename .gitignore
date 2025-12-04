@@ -1,0 +1,14 @@
+# 测试和分析文件
+/tests/
+*.log
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 本地配置
+config.local.php
+settings.local.php
