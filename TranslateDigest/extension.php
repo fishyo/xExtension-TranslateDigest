@@ -260,7 +260,7 @@ class TranslateDigestExtension extends Minz_Extension {
         try {
             $controller = new TranslateController();
             return $controller->processEntry($entry);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Logger::exception($e, 'Entry processing');
             return $entry;
         }

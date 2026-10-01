@@ -6,13 +6,23 @@ require_once('Logger.php');
 
 class TranslateController {
     
+    /** @return array<string|int,mixed> */
+    public static function feedMap($value) {
+        if (is_array($value)) {
+            return $value;
+        }
+        return is_string($value) ? (json_decode($value, true) ?: []) : [];
+    }
+
     public function processEntry($entry) {
         try {
             $feedId = $entry->feed()->id();
             
             // 从 FreshRSS_Context 读取配置
-            $translateMap = json_decode(FreshRSS_Context::$user_conf->TranslateTitles ?? '{}', true) ?: [];
-            $summarizeMap = json_decode(FreshRSS_Context::$user_conf->SummarizeContents ?? '{}', true) ?: [];
+            // The per-feed maps are normally stored as JSON strings, but accept arrays too: a json_decode()
+            // TypeError here is not an Exception and used to abort the whole feed refresh run.
+            $translateMap = self::feedMap(FreshRSS_Context::$user_conf->TranslateTitles ?? null);
+            $summarizeMap = self::feedMap(FreshRSS_Context::$user_conf->SummarizeContents ?? null);
             
             // 构建配置数组
             $config = [
