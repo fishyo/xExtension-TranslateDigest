@@ -19,7 +19,14 @@ class GoogleProvider implements ITranslationProvider {
             $result = @file_get_contents($url, false, $context);
             if ($result === false) return '';
             $response = json_decode($result, true);
-            return !empty($response[0][0][0]) ? $response[0][0][0] : '';
+            // Google splits the text into sentences: join every translated segment, not only the first one
+            $translated = '';
+            foreach (is_array($response[0] ?? null) ? $response[0] : [] as $segment) {
+                if (is_array($segment) && is_string($segment[0] ?? null)) {
+                    $translated .= $segment[0];
+                }
+            }
+            return $translated;
         } catch (Exception $e) { return ''; }
     }
     

@@ -38,7 +38,7 @@ class Logger {
     /**
      * 记录异常
      */
-    public static function exception(Exception $e, $context = '') {
+    public static function exception(Throwable $e, $context = '') {
         $msg = $context ? "$context: " : '';
         $msg .= $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ')';
         self::error($msg);

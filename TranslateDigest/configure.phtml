@@ -160,8 +160,8 @@
         'TranslateTargetLang' => $conf->TranslateTargetLang ?? 'zh',
         'TranslateSkipIfSame' => ($conf->TranslateSkipIfSame ?? '0') === '1',
         'TokenMaxChars' => $conf->TokenMaxChars ?? '4000',
-        'TranslateTitles' => json_decode($conf->TranslateTitles ?? '{}', true) ?: [],
-        'SummarizeContents' => json_decode($conf->SummarizeContents ?? '{}', true) ?: [],
+        'TranslateTitles' => TranslateController::feedMap($conf->TranslateTitles ?? null),
+        'SummarizeContents' => TranslateController::feedMap($conf->SummarizeContents ?? null),
     ];
     
     // 获取验证错误信息
